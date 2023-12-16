@@ -1,0 +1,237 @@
+{% extends "base.html" %}
+{% block head %}
+<style>
+    .grid-container {
+      display: grid;
+      grid-template-columns: auto auto auto;
+      gap: 10px;
+      background-color: #2196F3;
+      padding: 10px;
+    }
+    
+    .grid-container > div {
+      background-color: rgba(255, 255, 255, 0.8);
+      text-align: center;
+      /* padding: 20px 0; */
+    }
+    
+    .image-gallery {
+        display: grid;
+        grid-template-columns: auto auto auto auto auto auto;
+        max-width: 100%;
+        margin-inline: auto;
+    }
+
+    
+    
+    .anime_score {
+        width: 5vw;
+        height: 14vh;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .category {
+        font-size: 30px bold;
+    }
+
+    @media screen and (max-width: 992px) {
+        .image-gallery {
+            grid-template-columns: auto auto auto;
+        }
+
+        .anime_score {
+            width: 10vw;
+            height: 8vh;
+        }
+
+        .category {
+            font-size: 20px;
+        }
+    }
+
+    .details {
+        font : 16px;
+        /* transition: .5s ease;
+        opacity: 0;
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        -ms-transform: translate(-50%, -50%); */
+        /* text-align: center; */
+        /* background: rgb(0, 0, 0); */
+        background: rgba(0, 0, 0, 0.2); /* Black see-through */
+        width: 100%;
+        transition: .5s ease;
+        opacity:0;
+        color: black;
+        font-size: 20px;
+        padding: 20px;
+        text-align: center;
+    }
+/* 
+    .details .title {
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        -ms-transform: translate(-50%, -50%);
+        text-align: center;
+    } */
+    .scores {
+        display : grid;
+        grid-template-columns: auto auto;
+    }
+
+    .scores .user1 {
+        /* position: relative; */
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        color: lightgreen;
+        font : 36px bold;
+    }
+
+    .scores .user2 {
+        position: absolute;
+        bottom: 0;
+        right: 0;
+        color : orange;
+        font : 36px bold;
+    }
+
+    .image-gallery .anime_score {
+        transition: scale 350ms ease;
+    }
+
+    .anime_score img {
+        height: auto;
+        max-width: 100%;
+    }
+
+    .anime_score {
+        display: grid;
+    }
+
+    .anime_score img, .anime_score .details {
+        grid-area : 1 / 1;
+    }
+
+    .anime_score:hover img { 
+        opacity : 0.3;
+    }
+
+    .anime_score:hover .details {
+        opacity : 1;
+    }
+
+    .image-gallery:has(.anime_score:hover) .anime_score:not(:hover) {
+        scale: .8;
+        /* opacity: .7; */
+    }
+
+    .same {
+      grid-area: 1 / 2 / 3 / 3;
+    }
+
+    select {
+        width: 100%;
+        padding: 16px 20px;
+        border: none;
+        border-radius: 4px;
+        background-color: #f1f1f1;
+    }
+
+    .form-group {
+        display: grid;
+        grid-template-columns: auto auto auto;
+        gap: 10px;
+        background-color: gray;
+        padding: 10px;
+    }
+    .affinity-bar {
+      width: 100%; /* Adjust the width as needed */
+      height: 20px;
+      text-align: center;
+      font : 20px bold;
+      margin-top: -16px;
+      /* position: relative; */
+      /* background: linear-gradient(to right, #ff7f7f 0%, #ff7f7f 50%, #7fff7f 50%, #7fff7f 100%); */
+    }
+
+    </style>
+    <script>
+        function gotoanime(id, title) {
+            if (window.matchMedia('(min-device-width:960px)').matches) {
+                window.location.href = "https://myanimelist.net/anime/" + id;
+            } else {
+                document.getElementById("title").innerHTML = title;
+
+                setTimeout(function(){
+                    document.getElementById("title").innerHTML = 'Last anime touched';
+                }, 3000);
+            }
+        }
+    </script>
+{% endblock %}
+{% block title %}<div class="title" id="title">Compare</div>{% endblock %}
+{% block content %}
+<div style="width:100%; text-align: center; background-color: gray; padding:0">
+    <form action="/compare" method="POST">
+        <div class="form-group">
+            <div class="choice">
+                <label for="user1">User 1:</label>
+                <select name="user1" id="user1">
+                    {% for user, service in users %}
+                    <option value="{{ user }}" {% if user == sel_user1 %} selected {% endif %}>{{ user }}: {{ service }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="choice">
+                <label for="user2">User 2:</label>
+                <select name="user2" id="user2">
+                    {% for user, service in users %}
+                    <option value="{{ user }}" {% if user == sel_user2 %} selected {% endif %}>{{ user }}: {{ service }}</option>
+                    {% endfor %}
+                </select>
+            </div>  
+            <div class="choice"><!-- Maybe add another user for comparison? -->
+                <input type="submit" value="Submit">
+            </div>
+        </div>
+    </form>
+</div>
+{% if brackets %}
+{% if affinity > 0 %}
+<div class="affinity-bar" style="background: linear-gradient(to right, #ffffff 0%, #ffffff 50%, #7fff7f 50%, #7fff7f {{ 50 + affinity / 2}}%, #ffffff {{ 50 + affinity/2 }}%, #ffffff 100%);">{{affinity}}%</div>
+{% else %}
+<div class="affinity-bar" style="background: linear-gradient(to right, #ffffff 0%, #ffffff {{ 50 + affinity / 2}}%, #ff7f7f {{ 50 + affinity/2 }}%, #ff7f7f 50%, #ffffff 50%, #ffffff 100%);">{{affinity}}%</div>
+{% endif %}
+<div class="grid-container">
+    {% for (category, what) in [("I scored one more", "user1more1") , ("Same score", "same"), ("He scored one more", "user2more1"), ("I scored two or more more than him", "user1more2"), ("He scored two or more more than me", "user2more2")] %}
+    <div class="{{ what }}">
+        <div class="category"> {{ category }} </div>
+        <div class="image-gallery">
+            {% for activity in brackets[what] %}
+            <div class="anime_score" onclick="gotoanime({{ activity.id }}, '{{ activity.title }}')">
+                <img src="{{ activity.link_to_cover }}">
+                <div class="details">
+                    <!-- <div class="title">{{ activity.title }}</div> -->
+                    <div class="scores">
+                        <div class="user1">
+                            {{ activity.user1_score}}
+                        </div>
+                        <div class="user2">
+                            {{ activity.user2_score }}
+                        </div>
+                    </div>
+                    <!-- {{ activity.title }} -->
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% endif %}
+{% endblock %}

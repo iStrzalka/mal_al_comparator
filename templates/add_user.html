@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% block head %}
+{% endblock %}
+{% block content %}
+{% if error %}
+    <div class="alert alert-danger" role="alert">
+        {{ error }}
+    </div>
+{% endif %}
+{% if success %}
+    <div class="alert alert-success" role="alert">
+        {{ success }}
+    </div>
+{% endif %}
+<form action="/add_user", method="POST">
+    <label for="username">Username:</label><br>
+    <input type="text" id="username" name="username" value=""><br>
+    <label for="service">Service:</label><br>
+    <select id="service" name="service">
+        <option value="myanimelist">MyAnimeList</option>
+        <option value="anilist">Anilist</option>
+    </select><br>
+    <button type="submit">Submit</button>
+</form>
+{% endblock %}
