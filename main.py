@@ -1,5 +1,4 @@
 from flask import Flask, render_template, request, redirect, url_for, session, flash
-from aniffinity import Aniffinity
 import json
 import requests
 app = Flask(__name__)
@@ -188,40 +187,96 @@ def get_scores(username, service):
     return ERROR, "Invalid service"
 
 
+
 @app.route('/')
 def index():
     return redirect(url_for('compare'))
 
 
+def add_user_sub(db, username, service):
+    scores = None
+    try:
+        res, scores = get_scores(username, service.upper())
+        if res == ERROR:
+            return ERROR, res
+    except:
+        return ERROR, "Invalid username or service"
+    for score in scores:
+        anime = Anime.query.filter_by(idMal=score).first()
+        if anime is None:
+            anime = Anime(idMal=score, title=scores[score]["title"], season=scores[score]["season"], season_year=scores[score]["season_year"], episodes=scores[score]["episodes"], link_to_cover=scores[score]["link_to_cover"])
+            db.session.add(anime)
+            db.session.commit()
+    user = UserScores.query.filter_by(username=username, service=service.upper()).first()
+    if user is None:
+        user = UserScores(username=username, service=service.upper(), scores=json.dumps(scores))
+        db.session.add(user)
+    else:
+        user.scores = json.dumps(scores)
+    db.session.commit()
+    return SUCCESS, 0
+
+
 @app.route('/add_user', methods=['POST', 'GET'])
 def add_user():
+    print('uwu')
     if request.method == 'POST':
         username = request.form['username']
         service = request.form['service']
-        scores = None
-        try:
-            res, scores = get_scores(username, service.upper())
-            if res == ERROR:
-                return render_template('add_user.html', error="res")
-        except:
-            return render_template('add_user.html', error="Invalid username or service")
-        for score in scores:
-            anime = Anime.query.filter_by(idMal=score).first()
-            if anime is None:
-                anime = Anime(idMal=score, title=scores[score]["title"], season=scores[score]["season"], season_year=scores[score]["season_year"], episodes=scores[score]["episodes"], link_to_cover=scores[score]["link_to_cover"])
-                db.session.add(anime)
-                db.session.commit()
-        user = UserScores.query.filter_by(username=username, service=service.upper()).first()
-        if user is None:
-            user = UserScores(username=username, service=service.upper(), scores=json.dumps(scores))
-            db.session.add(user)
-        else:
-            user.scores = json.dumps(scores)
-        db.session.commit()
         
+        res, err_msg = add_user_sub(db, username, service)
+        if res == ERROR:
+            return render_template('add_user.html', error=err_msg)
         return render_template('add_user.html', success="User added/updated successfully")
     else:
         return render_template('add_user.html')
+
+
+@app.route('/tables', methods=['POST', 'GET'])
+def tables():
+    all_users = UserScores.query.all()
+    all_users = [(user.username, user.service) for user in all_users]
+    if request.method == 'POST':
+        print(request.form)
+        users = request.form.getlist('selection')
+        tab = []
+        tableusers = []
+        for user in users:
+            username, service = user.split(';')
+            user = UserScores.query.filter_by(username=username, service=service).first()
+            if user:    
+                tab.append(user)
+                tableusers.append(user.username)
+
+        ids = set()
+        titles = {}
+        for user in tab:
+            scores = json.loads(user.scores)
+            ids |= set(scores.keys())
+            for id in scores.keys():
+                titles[id] = scores[id]['title']
+
+        scores = {user.username : json.loads(user.scores) for user in tab}
+        results = {id : {} for id in ids}
+        for id in ids:
+            for user in scores.keys():
+                if id not in scores[user]:
+                    results[id][user] = -1
+                else:
+                    results[id][user] = scores[user][id]['score']
+
+        results = {titles[id] : results[id] for id in ids}
+        return render_template('tables.html', users=all_users, table = results, tableusers = tableusers)
+    else:
+        return render_template('tables.html', users=all_users)
+
+
+@app.route('/reload_all', methods=['GET'])
+def reload_all():
+    for user in UserScores.query.all():
+        add_user_sub(db, user.username, user.service)
+    return redirect(url_for('compare'))
+
 
 @app.route('/compare', methods=['POST', 'GET'])
 def compare():

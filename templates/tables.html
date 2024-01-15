@@ -1,0 +1,90 @@
+{% extends "base.html" %}
+{% block head %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/tables.css') }}">
+<!-- <link rel="script" href="{{ url_for('static', filename='js/tables.js') }}"> -->
+<script type="text/javascript" src="{{ url_for('static', filename='js/tables.js') }}"></script>
+{% endblock %}
+{% block content %}
+{% if users %}
+
+<button type="button" class="collapsible">Choose users to compare {% if table %} (Currently chosen : {% for user in tableusers %}<b>{{user}}</b> {% endfor %}{% endif %}) </button>
+<div class="content">
+    <form action="/tables", method="POST" id="comparator">
+    <div style="display:inline-block; text-align: left;">
+        {% for user in users %}
+        <input type="checkbox" id="selection" name="selection" value="{{ user[0] }};{{ user[1] }}" {% if user[0] in tableusers %} checked {% endif %}>
+        <label for="{{ user[0] }}">{{ user }}</label><br>
+        {% endfor %}
+    
+    <button type="submit">Submit</button>
+</div>
+    </form>
+</div>
+
+<script>
+    var coll = document.getElementsByClassName("collapsible");
+    var i;
+
+    for (i = 0; i < coll.length; i++) {
+        coll[i].addEventListener("click", function() {
+        this.classList.toggle("active");
+        var content = this.nextElementSibling;
+        if (content.style.maxHeight){
+            content.style.maxHeight = null;
+        } else {
+            content.style.maxHeight = content.scrollHeight + "px";
+        } 
+        });
+    }
+</script>
+{% endif %}
+{% if table %}
+<div style="margin: auto; width: 100%; height: 100%; overflow: auto;" class="table-wrap">
+    <table class="sortable">
+        <thead>
+            <tr>
+                <th style="width:50%" scope="col" aria-sort="ascending">
+                     
+                    <button>
+                    Anime
+                    <span aria-hidden="true"></span>
+                    </button>
+                </th>
+                {% for user in tableusers %}
+                <th scope="col" class="num">
+                    <button>
+                    {{ user }}
+                    <span aria-hidden="true"></span>
+                    </button>
+                </th>
+
+                {% endfor %}
+            </tr>
+        </thead>
+        <tbody>
+            {% for anime in table.keys() %}
+            <tr>
+                <th scope="row">{{ anime }}</th>
+                {% for user in tableusers %}
+                <td class="score">{{ table[anime][user] }}</td>
+                {% endfor %}
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+</div>  
+
+<script>
+    const color_tab = ["#FF0000", "#FF3300", "#FF6600", "#FF9900", "#FFCC00", "#FFFF00", "#CCFF00", "#99FF00", "#66FF00", "#33FF00"];
+    var colorContainers = document.getElementsByClassName("score");
+    console.log(colorContainers.length);
+    for (var i = 0; i < colorContainers.length; i++) {
+        var color = colorContainers[i].innerHTML;
+        if (i == 0)
+            console.log(color);
+        colorContainers[i].style.backgroundColor = color_tab[Math.round(color)-1];
+    }
+</script>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,163 @@
+.sr-only {
+    position: absolute;
+    top: -30em;
+  }
+  
+  table.sortable td,
+  table.sortable th {
+    padding: 0.125em 0.25em;
+    width: 8em;
+  }
+  
+  table.sortable th {
+    /* white-space: nowrap; */
+    overflow: hidden;
+    font-weight: bold;
+    border-bottom: thin solid #888;
+    position: relative;
+  }
+  
+  table.sortable th.no-sort {
+    padding-top: 0.35em;
+  }
+  
+  table.sortable th:nth-child(5) {
+    width: 10em;
+  }
+  
+  table.sortable th button {
+    position: absolute;
+    padding: 4px;
+    margin: 1px;
+    font-size: 100%;
+    font-weight: bold;
+    background: transparent;
+    border: none;
+    display: inline;
+    right: 0;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 100%;
+    text-align: left;
+    outline: none;
+    cursor: pointer;
+    color: white;
+  }
+  
+  table.sortable th button span {
+    position: absolute;
+    right: 4px;
+  }
+  
+  table.sortable th[aria-sort="descending"] span::after {
+    content: "▼";
+    color: currentcolor;
+    font-size: 100%;
+    top: 0;
+  }
+  
+  table.sortable th[aria-sort="ascending"] span::after {
+    content: "▲";
+    color: currentcolor;
+    font-size: 100%;
+    top: 0;
+  }
+  
+  table.show-unsorted-icon th:not([aria-sort]) button span::after {
+    content: "♢";
+    color: currentcolor;
+    font-size: 100%;
+    position: relative;
+    top: -3px;
+    left: -4px;
+  }
+  
+  table.sortable td.num {
+    text-align: right;
+  }
+  
+  table.sortable tbody tr:nth-child(odd) {
+    background-color: #ddd;
+  }
+  
+  /* Focus and hover styling */
+  
+  table.sortable th button:focus,
+  table.sortable th button:hover {
+    padding: 2px;
+    border: 2px solid currentcolor;
+    background-color: #13222d;
+  }
+  
+  table.sortable th button:focus span,
+  table.sortable th button:hover span {
+    right: 2px;
+  }
+  
+  table.sortable th:not([aria-sort]) button:focus span::after,
+  table.sortable th:not([aria-sort]) button:hover span::after {
+    content: "▼";
+    color: currentcolor;
+    font-size: 100%;
+    top: 0;
+  }
+
+  table.sortable thead th {
+    position: sticky;
+    top: 0;
+    background-color: #333;
+    color: white;
+    /* background: solid; */
+  }
+  
+  table.sortable {
+    border-collapse: collapse;
+    width: 100%;
+  }
+
+  p, label {
+    font:
+        1rem 'Fira Sans',
+        sans-serif;
+        text-align: center;
+    }
+
+    .collapsible {
+        background-color: #777;
+        color: white;
+        cursor: pointer;
+        padding: 18px;
+        width: 100%;
+        border: none;
+        text-align: left;
+        outline: none;
+        font-size: 15px;
+    }
+
+    .active, .collapsible:hover {
+        background-color: #555;
+    }
+
+    .collapsible:after {
+        content: '\002B';
+        color: white;
+        font-weight: bold;
+        float: right;
+        margin-left: 5px;
+    }
+
+    .active:after {
+        content: "\2212";
+    }
+
+    .content {
+        padding: 0 18px;
+        max-height: 0;
+        overflow: hidden;
+        transition: max-height 0.2s ease-out;
+        background-color: #f1f1f1;
+        text-align: center;
+    }
+
+    
